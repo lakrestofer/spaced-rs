@@ -6,6 +6,7 @@ license = "GPL-3.0-only"
 description = "A small library implementing a sm2 inspired SR algorithm"
 homepage = "https://github.com/christhedevel/spaced-rs"
 repository = "https://github.com/christhedevel/spaced-rs"
+keywords = ["spaced", "tui", "supermemo", "learn"]
 readme = "README.md"
 
 [dependencies]

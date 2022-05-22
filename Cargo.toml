@@ -2,7 +2,7 @@
 name = "spaced-rs"
 version = "0.1.0"
 edition = "2021"
-license-file = "./LICENSE"
+license = "GNU General Public License v3.0"
 description = "A small library implementing a sm2 inspired SR algorithm"
 homepage = "https://github.com/christhedevel/spaced-rs"
 repository = "https://github.com/christhedevel/spaced-rs"

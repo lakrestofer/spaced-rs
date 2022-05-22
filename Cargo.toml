@@ -2,8 +2,11 @@
 name = "spaced-rs"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license-file = "./LICENSE"
+description = "A small library implementing a sm2 inspired SR algorithm"
+homepage = "https://github.com/christhedevel/spaced-rs"
+repository = "https://github.com/christhedevel/spaced-rs"
+readme = "README.md"
 
 [dependencies]
 rand = "0.8.5"

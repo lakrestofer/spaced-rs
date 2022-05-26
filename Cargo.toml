@@ -1,6 +1,6 @@
 [package]
 name = "spaced-rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "GPL-3.0-only"
 description = "A small library implementing a sm2 inspired SR algorithm"

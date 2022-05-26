@@ -8,7 +8,7 @@
 
 
 // stdlib imports
-use std::f64::consts::E;
+use std::f32::consts::E;
 
 // external crate imports
 use rand::Rng;
@@ -27,22 +27,22 @@ pub enum UserReview {
 /// probability. Expects a positive forgetting rate. Is not used directly can but is exposed
 /// anyway.
 #[inline]
-pub fn compute_intervall(forgetting_rate: f64, probability: f64) -> u32 {
+pub fn compute_intervall(forgetting_rate: f32, probability: f32) -> i32 {
     assert!(forgetting_rate.is_sign_positive());
     assert!(probability < 1.0);
 
     let n_days_f = probability.log(E) / (-forgetting_rate);
-    n_days_f as u32
+    n_days_f as i32
 }
 
 /// Struct containing item specific data related to it's scheduling. 
 pub struct SchedulingData {
-    intervall: u32,
-    difficulty: f64,
-    memory_strength: f64,
-    adjusting_factor: f64,
-    times_reviewed: u32,
-    times_recalled: u32,
+    intervall: i32,
+    difficulty: f32,
+    memory_strength: f32,
+    adjusting_factor: f32,
+    times_reviewed: i32,
+    times_recalled: i32,
 }
 
 /// struct containing various parameters used to update the scheduling data of an item
@@ -50,9 +50,9 @@ pub struct SchedulingData {
 pub struct UpdateParameters {
     /// the factor (in percent) that the difficulty is increased/decreased if the user finds the
     /// item to hard/easy
-    pub difficulty_change_factor: f64,
+    pub difficulty_change_factor: f32,
     /// the faactor (in percent) that the memory_strength is increased when reviewing an item
-    pub memory_strength_change_factor: f64,
+    pub memory_strength_change_factor: f32,
 }
 
 
@@ -78,7 +78,7 @@ impl Default for UpdateParameters {
 
 /// main scheduling function. Takes the scheduling data of an item, and the result of the review
 /// event and computes the next intervall + changes to the item parameters.
-pub fn schedule(item_data: SchedulingData, user_review: UserReview, update_parameters: UpdateParameters, probability: f64) -> SchedulingData {
+pub fn schedule(item_data: SchedulingData, user_review: UserReview, update_parameters: UpdateParameters, probability: f32) -> SchedulingData {
     // The value of f will be the quotient difficulty/memory_strength.
     // If we want to the ratio between the new and old interval to be A then that formes the
     // following equation: t2 = A * t1. Which if expanded becomes:  A * ln(P)/-f1 = ln(P)/-f2. Out
@@ -118,11 +118,11 @@ pub fn schedule(item_data: SchedulingData, user_review: UserReview, update_param
 
 /// Computes how the ratio between review intervalls should be scaled to more accurately
 /// align with the true forgetting curve. Computed as explained [here](https://docs.ankiweb.net/deck-options.html#interval-modifier)
-pub fn update_adjusting_factor(item_data: SchedulingData, target_probability: f64) -> SchedulingData { 
+pub fn update_adjusting_factor(item_data: SchedulingData, target_probability: f32) -> SchedulingData { 
     let SchedulingData { intervall, difficulty, memory_strength, adjusting_factor: _, times_reviewed, times_recalled } = item_data;
 
     // the actual recall probability for this item
-    let actual_probability = times_recalled as f64 / times_reviewed as f64;
+    let actual_probability = times_recalled as f32 / times_reviewed as f32;
 
     let new_adjusting_factor = target_probability.log(E) / actual_probability.log(E);
 

@@ -27,7 +27,7 @@ pub enum UserReview {
 /// probability. Expects a positive forgetting rate. Is not used directly can but is exposed
 /// anyway.
 #[inline]
-pub fn compute_intervall(forgetting_rate: f32, probability: f32) -> i32 {
+pub fn compute_interval(forgetting_rate: f32, probability: f32) -> i32 {
     assert!(forgetting_rate.is_sign_positive());
     assert!(probability < 1.0);
 
@@ -37,7 +37,7 @@ pub fn compute_intervall(forgetting_rate: f32, probability: f32) -> i32 {
 
 /// Struct containing item specific data related to it's scheduling. 
 pub struct SchedulingData {
-    intervall: i32,
+    interval: i32,
     difficulty: f32,
     memory_strength: f32,
     adjusting_factor: f32,
@@ -62,7 +62,7 @@ impl Default for SchedulingData {
         // around -ln(0.9) =approx 0.1 (this results in the first interval being around 1 day)
         // I therefore simply set the difficulty to that value, then scale both it and the memory
         // strength by 100
-        SchedulingData { intervall: 1, difficulty: 10.0, memory_strength: 100.0, adjusting_factor: 1.0, times_reviewed: 0, times_recalled: 0 }
+        SchedulingData { interval: 1, difficulty: 10.0, memory_strength: 100.0, adjusting_factor: 1.0, times_reviewed: 0, times_recalled: 0 }
     }
 }
 
@@ -77,7 +77,7 @@ impl Default for UpdateParameters {
 }
 
 /// main scheduling function. Takes the scheduling data of an item, and the result of the review
-/// event and computes the next intervall + changes to the item parameters.
+/// event and computes the next interval + changes to the item parameters.
 pub fn schedule(item_data: SchedulingData, user_review: UserReview, update_parameters: UpdateParameters, probability: f32) -> SchedulingData {
     // The value of f will be the quotient difficulty/memory_strength.
     // If we want to the ratio between the new and old interval to be A then that formes the
@@ -88,7 +88,7 @@ pub fn schedule(item_data: SchedulingData, user_review: UserReview, update_param
     // quotient.
 
     // old data
-    let SchedulingData { intervall: _, difficulty, memory_strength, adjusting_factor, times_reviewed, times_recalled } = item_data;
+    let SchedulingData { interval: _, difficulty, memory_strength, adjusting_factor, times_reviewed, times_recalled } = item_data;
     
     let new_difficulty = match user_review {
         UserReview::TooHard => difficulty * update_parameters.difficulty_change_factor,
@@ -98,7 +98,7 @@ pub fn schedule(item_data: SchedulingData, user_review: UserReview, update_param
 
     let new_memory_strength = memory_strength * update_parameters.memory_strength_change_factor;
     let new_forgetting_rate = (1.0 / adjusting_factor) * (difficulty / memory_strength);
-    let next_interval_no_random = compute_intervall(new_forgetting_rate, probability);
+    let next_interval_no_random = compute_interval(new_forgetting_rate, probability);
     
     // we then want to introduce some noise in the interval
     let mut rng = rand::thread_rng();
@@ -107,7 +107,7 @@ pub fn schedule(item_data: SchedulingData, user_review: UserReview, update_param
     let next_interval = next_interval_no_random + random_change;
 
     SchedulingData {
-        intervall: next_interval,
+        interval: next_interval,
         difficulty: new_difficulty,
         memory_strength: new_memory_strength,
         adjusting_factor,
@@ -116,10 +116,10 @@ pub fn schedule(item_data: SchedulingData, user_review: UserReview, update_param
     }
 }
 
-/// Computes how the ratio between review intervalls should be scaled to more accurately
+/// Computes how the ratio between review intervals should be scaled to more accurately
 /// align with the true forgetting curve. Computed as explained [here](https://docs.ankiweb.net/deck-options.html#interval-modifier)
 pub fn update_adjusting_factor(item_data: SchedulingData, target_probability: f32) -> SchedulingData { 
-    let SchedulingData { intervall, difficulty, memory_strength, adjusting_factor: _, times_reviewed, times_recalled } = item_data;
+    let SchedulingData { interval, difficulty, memory_strength, adjusting_factor: _, times_reviewed, times_recalled } = item_data;
 
     // the actual recall probability for this item
     let actual_probability = times_recalled as f32 / times_reviewed as f32;
@@ -127,7 +127,7 @@ pub fn update_adjusting_factor(item_data: SchedulingData, target_probability: f3
     let new_adjusting_factor = target_probability.log(E) / actual_probability.log(E);
 
     SchedulingData {
-        intervall,
+        interval,
         difficulty,
         memory_strength,
         adjusting_factor: new_adjusting_factor,

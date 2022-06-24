@@ -13,6 +13,7 @@ use std::f32::consts::E;
 use rand::Rng;
 
 /// User evaluation of review event. Did it feel too hard, just difficult enough or too easy?
+#[derive(Clone, Debug)]
 pub enum UserReview {
     /// The forgetting curve decreases faster than expected, increase difficulty of item
     TooHard,
@@ -35,6 +36,7 @@ pub fn compute_interval(forgetting_rate: f32, probability: f32) -> i32 {
 }
 
 /// Struct containing item specific data related to it's scheduling.
+#[derive(Clone, Debug)]
 pub struct SchedulingData {
     pub interval: i32,
     pub difficulty: f32,

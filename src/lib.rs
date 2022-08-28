@@ -38,11 +38,17 @@ pub fn compute_interval(forgetting_rate: f32, probability: f32) -> i32 {
 /// Struct containing item specific data related to it's scheduling.
 #[derive(Clone, Debug)]
 pub struct SchedulingData {
+    /// the number of days between the last review event and the next one
     pub interval: i32,
+    /// numerical representation of the 'difficulty' of the item. More difficult items will get a larger difficulty value
     pub difficulty: f32,
+    /// numerical representation of how well the memory of this item has established itself in the user.
     pub memory_strength: f32,
+    /// How the quotient between difficulty and memory strenght should be scaled. Used when the actual retention probability is not equal to the expected one.
     pub adjusting_factor: f32,
+    /// how many times this card has been reviewed
     pub times_reviewed: i32,
+    /// how many times this card has been reviewed successfully
     pub times_recalled: i32,
 }
 
@@ -57,11 +63,11 @@ pub struct UpdateParameters {
 }
 
 impl Default for SchedulingData {
+    /// Here we want the initial ratio between the difficulty and the memory strength to be
+    /// around -ln(0.9) =approx 0.1 (this results in the first interval being around 1 day)
+    /// I therefore simply set the difficulty to that value, then scale both it and the memory
+    /// strength by 100
     fn default() -> Self {
-        // Here we want the initial ratio between the difficulty and the memory strength to be
-        // around -ln(0.9) =approx 0.1 (this results in the first interval being around 1 day)
-        // I therefore simply set the difficulty to that value, then scale both it and the memory
-        // strength by 100
         SchedulingData {
             interval: 1,
             difficulty: 10.0,
@@ -82,7 +88,7 @@ impl Default for UpdateParameters {
     }
 }
 
-/// main scheduling function. Takes the scheduling data of an item, and the result of the review
+/// main scheduling function. Takes the scheduling data of an item, result of the review, update constants, and the wanted rentention probability
 /// event and computes the next interval + changes to the item parameters.
 pub fn schedule(
     item_data: SchedulingData,
@@ -119,6 +125,7 @@ pub fn schedule(
     let next_interval_no_random = compute_interval(new_forgetting_rate, probability);
 
     // we then want to introduce some noise in the interval
+    // TODO, move how much noise we want into the UpdateParameters struct
     let mut rng = rand::thread_rng();
     let random_range = next_interval_no_random / 10;
     let random_change = rng.gen_range(0..random_range * 2) - random_range;
